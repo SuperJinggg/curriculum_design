@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/mvc
+        http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+    <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+            <list>
+            	 <value>/WEB-INF/jdbc.properties</value>
+            </list>
+        </property>
+    </bean>
+    <bean id="c3p0" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">  
+        <property name="driverClass" value="${mysql.driverClassName}" />
+		<property name="jdbcUrl" value="${mysql.url}" />
+		<property name="user" value="${mysql.username}" />
+		<property name="password" value="${mysql.password}" />    
+	    <property name="autoCommitOnClose" value="true"/>   
+	    <property name="minPoolSize" value="1"/>        
+	    <property name="maxPoolSize" value="10"/>    
+	    <property name="initialPoolSize" value="1"/>    
+	    <property name="maxIdleTime" value="600"/>    
+		<!--连接池在无空闲连接可用时一次性创建的新数据库连接数,default : 3-->  
+	    <property name="acquireIncrement" value="3"/>   
+		<!--连接池在获得新连接失败时重试的次数，如果小于等于0则无限重试直至连接获得成功-->     
+	    <property name="acquireRetryAttempts" value="5"/>   
+		<property name="maxStatements" value="500"/>  
+		<property name="maxStatementsPerConnection" value="30"/>   
+		<!--当连接池所有连接用完时应用程序getConnection的等待时间。为0则无限等待直至有其他连接释放或者创建新的连接，不为0则当时间到的时候如果仍没有获得连接，则会抛出SQLException。--> 
+        <property name="checkoutTimeout" value="0"/> 
+		<!--mysql默认会8小时销毁connection的会话-->
+		<property name="idleConnectionTestPeriod" value="3600"/>  
+    </bean>
+	<!--JdbcTemplate事务-->
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+ 		 <property name="dataSource" ref="c3p0"/> 
+ 	</bean>
+	<bean id="transactionTemplate"  
+        class="org.springframework.transaction.support.TransactionTemplate">   
+        <property name="transactionManager">   
+            <ref bean="transactionManager" />   
+        </property>   
+    </bean> 
+	<!--JdbcTemplate DAO-->
+    <bean id="jdbc" class="org.springframework.jdbc.core.JdbcTemplate">
+        <property name="dataSource" ref="c3p0"/> 
+    </bean>
+    
+	<!-- 进行数据帧管理的DAO -->
+    <bean id="dataFrameDao" class="design.dao.DataFrameDao"/>
+    <!-- 进行抽屉管理的DAO -->
+    <bean id="drawersDao" class="design.dao.DrawersDao"/>
+    <!-- 进行压缩机管理的DAO -->
+    <bean id="compressorDao" class="design.dao.CompressorDao"/>
+    <!-- 进行控制温度管理的DAO -->
+    <bean id="settingTemDao" class="design.dao.SettingTemDao"/>
+    <!-- 进行系统参数管理的DAO -->
+    <bean id="sysParamDao" class="design.dao.SysParamDao"/>
+    <!-- 进行设备编码管理的DAO -->
+    <bean id="deCodingDao" class="design.dao.DeCodingDao"/>
+	
+</beans>
